@@ -12,6 +12,13 @@ public class Ticket {
     private Long id;
     private String nomClient;
     private double prix;
+    @Column(unique = true)
     private int codePayement;
     private boolean reservee;
+
+    @ManyToOne
+    private Place place;
+
+    @ManyToOne
+    private ProjectionFilm projectionFilm;
 }

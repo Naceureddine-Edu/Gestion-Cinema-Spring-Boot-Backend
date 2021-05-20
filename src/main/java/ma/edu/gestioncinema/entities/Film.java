@@ -3,6 +3,7 @@ package ma.edu.gestioncinema.entities;
 
 import lombok.*;
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 
 
@@ -17,4 +18,10 @@ public class Film {
     private String description;
     private String photo;
     private Date dateSortie;
+
+    @OneToMany(mappedBy = "film")
+    private Collection<ProjectionFilm> projectionFilms;
+
+    @ManyToOne
+    private Categorie categorie;
 }
