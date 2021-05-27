@@ -1,6 +1,7 @@
 package ma.edu.gestioncinema.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import javax.persistence.*;
 
@@ -10,9 +11,10 @@ import javax.persistence.*;
 public class Ticket {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 30)
     private String nomClient;
     private double prix;
-    @Column(unique = true)
+    @Column(unique = false, nullable = true)
     private int codePayement;
     private boolean reservee;
 

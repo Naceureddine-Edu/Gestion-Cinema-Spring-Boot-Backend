@@ -1,54 +1,66 @@
 package ma.edu.gestioncinema.controllers;
 
 
-import ma.edu.gestioncinema.entities.Cinema;
-import ma.edu.gestioncinema.services.CinemaService;
+import lombok.Data;
+import ma.edu.gestioncinema.entities.Film;
+import ma.edu.gestioncinema.entities.Ticket;
+import ma.edu.gestioncinema.repositorys.FilmRepository;
+import ma.edu.gestioncinema.repositorys.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 
 @RestController
-@RequestMapping("/cinema")
 public class CinemaController {
 
     @Autowired
-    private final CinemaService cinemaService;
+    private FilmRepository filmRepository;
 
-    public CinemaController(CinemaService cinemaService) {
-        this.cinemaService = cinemaService;
+    @Autowired
+    private TicketRepository ticketRepository;
+
+    @GetMapping(path ="/imageFilm/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] images(@PathVariable Long id) throws Exception {
+        Film film = filmRepository.findById(id).get();
+        String nomPhoto = film.getPhoto();// Recuperer Le Nom De La Photo Dun Film En Question(findById=prm ID)
+
+        File file = new File(System.getProperty("user.home")+
+                "/eclipse-workspace/cinemaFilmImages/"+nomPhoto);
+
+        Path path = Paths.get(file.toURI());
+        return Files.readAllBytes(path);
     }
 
-    @GetMapping("/lists")
-    public ResponseEntity<List<Cinema>> getAllCinemas() {
-        List<Cinema> cinemas = cinemaService.listeCinema();
-        return new ResponseEntity<> (cinemas, HttpStatus.OK);
+    @PostMapping("/payerTickets")
+    @Transactional
+    public List<Ticket> payerTickets(@RequestBody TicketFormModel ticketFormModel) {
+        List<Ticket> ticketList = new ArrayList<>();
+        ticketFormModel.getTickets().forEach(idTicket -> {
+            Ticket ticket = ticketRepository.findById(idTicket).get();
+            ticket.setNomClient(ticketFormModel.getNomClient());
+            ticket.setCodePayement(ticketFormModel.getCodePayment());
+            ticket.setReservee(true);
+            ticketRepository.save(ticket);
+            ticketList.add(ticket);
+        });
+        return ticketList;
     }
+}
 
-    @GetMapping("/find/{id}")
-    public ResponseEntity<Cinema> findCinemaById(@PathVariable Long id) {
-        Cinema cinema = cinemaService.getCinemaById(id);
-        return new ResponseEntity<>(cinema,HttpStatus.FOUND);
-    }
-
-    @PostMapping("/save")
-    public ResponseEntity<Cinema> saveCinema(@RequestBody Cinema cinema) {
-        Cinema newCinema = cinemaService.ajouterCinema(cinema);
-        return new ResponseEntity<>(newCinema, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/update")
-    public ResponseEntity<Cinema> updateCinema(@RequestBody Cinema cinema) {
-        Cinema updatedCinema = cinemaService.modifierCinema(cinema);
-        return new ResponseEntity<>(updatedCinema, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteCinema(@PathVariable Long id) {
-        cinemaService.supprimerCinema(id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+ @Data
+ class TicketFormModel implements Serializable
+{
+    private String nomClient;
+    private int codePayment;
+    private List<Long> tickets = new ArrayList<>();
 }
