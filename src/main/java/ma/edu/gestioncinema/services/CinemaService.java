@@ -14,7 +14,7 @@ import java.util.Optional;
 public class CinemaService {
 
     @Autowired
-    private final CinemaRepository cinemaRepository;
+    private CinemaRepository cinemaRepository;
 
     public CinemaService(CinemaRepository cinemaRepository) {
         this.cinemaRepository = cinemaRepository;

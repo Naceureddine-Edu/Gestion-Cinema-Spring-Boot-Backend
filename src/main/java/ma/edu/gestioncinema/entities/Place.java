@@ -1,6 +1,7 @@
 package ma.edu.gestioncinema.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,5 +23,6 @@ public class Place implements Serializable {
     private Salle salle;
 
     @OneToMany(mappedBy = "place")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Collection<Ticket> tickets;
 }

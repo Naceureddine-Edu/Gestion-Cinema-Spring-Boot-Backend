@@ -12,6 +12,7 @@ import java.util.Collection;
 public class Cinema implements Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 30)
     private String name;
     private double longitude;
     private double latitude;
